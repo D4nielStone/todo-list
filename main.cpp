@@ -6,6 +6,9 @@ int main() {
     bgui::set_up_gl3();
     bgui::set_up_freetype();
 
+    // initialize the library
+    bgui::set_up();
+
     while(!bgui::should_close_glfw()) {
         bgui::glfw_update(bgui::get_context());
         bgui::gl3_render(bgui::get_draw_data());
