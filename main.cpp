@@ -22,6 +22,7 @@ void create_task() {
     close.set_padding(30, 0);
     close.request_height(bgui::mode::match_parent);
     close.get_style().m_button_border_color[3]=0.f;
+    close.get_style().m_button_color[3]=0.5f;
     close.set_cross_alignment(bgui::alignment::center);
 }
 
