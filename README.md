@@ -1,7 +1,7 @@
 Todo List (using bgui)
 ===
 
-![GitHub Tag](https://img.shields.io/github/v/tag/D4nielStone/todo-list?style=flat-square&label=Latest)
+<a href="https://github.com/D4nielStone/todo-list/releases/">![GitHub Tag](https://img.shields.io/github/v/tag/D4nielStone/todo-list?style=flat-square&label=Latest)</a>
 
 Is a ToDo List app made in cpp using my GUI framework, <a href="https://www.github.com/D4nielStone/cpp-bgui" target="_blank">Bubble GUI</a>.<br>
 This Software uses sqlite3 to store database. If you want to compile, please make sure you have installed sqlite-devel lib in your system.
