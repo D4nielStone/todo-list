@@ -6,4 +6,4 @@ set(BGUI_TESTS OFF)
 add_executable(app main.cpp)
 
 add_subdirectory(external/cpp-bgui)
-target_link_libraries(app PRIVATE bgui)
+target_link_libraries(app PRIVATE bgui sqlite3)
