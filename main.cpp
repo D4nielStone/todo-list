@@ -8,6 +8,8 @@ void create_task() {
     task.request_width(bgui::mode::match_parent);
     task.request_height(bgui::mode::wrap_content);
     task.set_alignment(bgui::alignment::start);
+    task.get_style().m_button_border_color[3]=0.f;
+    task.get_style().m_button_color[3]=0.5f;
     task.get_label().set_margin(10, 10);
     task.get_label().get_material().set("text_color", bgui::color{0.1, 0.1, 0.1, 1});
 
@@ -45,9 +47,6 @@ int main() {
     top_div.add<bgui::text>("Todo List", 0.6f);
     auto& ia = top_div.add<bgui::input_area>("", 0.35f, "Task Title");
     ia.request_width(bgui::mode::match_parent);
-    auto& spacer = ia.add<bgui::element>();
-    spacer.request_width(bgui::mode::stretch);
-    spacer.set_visible(false);
     auto& btn = ia.add<bgui::button>("Add", 0.4, create_task);
     top_div.set_visible(true);
     auto new_style = bgui::light_style;
