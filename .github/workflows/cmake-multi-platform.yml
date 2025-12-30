@@ -73,12 +73,27 @@ jobs:
         run: |
           choco install sqlite -y
           refreshenv || true
-      - name: Install glfw3 on Windows (Chocolatey)
+      - name: Install glfw3 on Windows (vcpkg)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          choco install glfw3 -y
-          refreshenv || true
+          git clone https://github.com/Microsoft/vcpkg.git
+          .\vcpkg\bootstrap-vcpkg.bat
+          .\vcpkg\vcpkg install glfw3:x64-windows
+
+      - name: Configure CMake (Windows)
+        if: matrix.os == 'windows-latest'
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DFREETYPE_INCLUDE_DIRS=$env:FREETYPE_ROOT\include
+          -DFREETYPE_LIBRARY=$env:FREETYPE_ROOT\lib\freetype.lib
+          -DEXTERNALS_DIR=${{ github.workspace }}/externals
+          -DCPP_BGUI_DIR=${{ github.workspace }}/externals/cpp-bgui
+          -S ${{ github.workspace }}
           
       - name: Find Freetype manually on Windows
         if: matrix.os == 'windows-latest'
@@ -103,16 +118,5 @@ jobs:
           -DCPP_BGUI_DIR=${{ github.workspace }}/externals/cpp-bgui
           -S ${{ github.workspace }}
           
-      - name: Configure CMake
-        if: matrix.os != 'windows-latest'
-        run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DEXTERNALS_DIR=${{ github.workspace }}/externals
-          -DCPP_BGUI_DIR=${{ github.workspace }}/externals/cpp-bgui
-          -S ${{ github.workspace }}
-
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
