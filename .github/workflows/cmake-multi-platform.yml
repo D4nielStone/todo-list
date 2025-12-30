@@ -1,5 +1,4 @@
 name: CMake on multiple platforms
-
 on:
   push:
     branches: [ "main" ]
@@ -9,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -37,7 +35,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Ensure submodules (externals/cpp-bgui) are fetched
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -52,71 +49,79 @@ jobs:
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-      - name: Install sqlite3 on Ubuntu
+      # ============= UBUNTU DEPENDENCIES =============
+      - name: Install dependencies on Ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsqlite3-dev
-          
-          
-      - name: Install GLFW dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get install -y libglfw3-dev
-        
-      - name: Install Freetype dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get install -y libfreetype6-dev
-  
-      - name: Install sqlite3 on Windows (Chocolatey)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          choco install sqlite -y
-          refreshenv || true
-      - name: Install glfw3 on Windows (vcpkg)
+          sudo apt-get install -y \
+            libsqlite3-dev \
+            libglfw3-dev \
+            libfreetype6-dev \
+            xorg-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev
+
+      # ============= WINDOWS DEPENDENCIES =============
+      - name: Setup vcpkg on Windows
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           git clone https://github.com/Microsoft/vcpkg.git
-          .\vcpkg\bootstrap-vcpkg.bat
-          .\vcpkg\vcpkg install glfw3:x64-windows
-
-      - name: Configure CMake (Windows)
-        if: matrix.os == 'windows-latest'
-        run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
-          -DFREETYPE_INCLUDE_DIRS=$env:FREETYPE_ROOT\include
-          -DFREETYPE_LIBRARY=$env:FREETYPE_ROOT\lib\freetype.lib
-          -DEXTERNALS_DIR=${{ github.workspace }}/externals
-          -DCPP_BGUI_DIR=${{ github.workspace }}/externals/cpp-bgui
-          -S ${{ github.workspace }}
+          .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
           
-      - name: Find Freetype manually on Windows
+      - name: Cache vcpkg packages
+        if: matrix.os == 'windows-latest'
+        uses: actions/cache@v3
+        with:
+          path: |
+            vcpkg/installed
+            vcpkg/packages
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
+
+      - name: Install Windows dependencies via vcpkg
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          $FreetypeRoot = (Get-ChildItem 'C:\ProgramData\chocolatey\lib\' -Directory | Where-Object { $_.Name -like 'freetype*' }).FullName
-          echo "FREETYPE_ROOT=$FreetypeRoot" | Out-File -Append $env:GITHUB_ENV
+          .\vcpkg\vcpkg install glfw3:x64-windows
+          .\vcpkg\vcpkg install freetype:x64-windows
+          .\vcpkg\vcpkg install sqlite3:x64-windows
+          .\vcpkg\vcpkg integrate install
 
-      - name: Show git submodule status
-        run: git submodule status --recursive || true
-
-
+      # ============= CMAKE CONFIGURATION =============
       - name: Configure CMake (Windows)
         if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          cmake -B "${{ steps.strings.outputs.build-output-dir }}" `
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} `
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} `
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
+            -DEXTERNALS_DIR="${{ github.workspace }}/externals" `
+            -DCPP_BGUI_DIR="${{ github.workspace }}/externals/cpp-bgui" `
+            -S "${{ github.workspace }}"
+
+      - name: Configure CMake (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DFREETYPE_INCLUDE_DIRS=$env:FREETYPE_ROOT\include -DFREETYPE_LIBRARY=$env:FREETYPE_ROOT\lib\freetype.lib
           -DEXTERNALS_DIR=${{ github.workspace }}/externals
           -DCPP_BGUI_DIR=${{ github.workspace }}/externals/cpp-bgui
           -S ${{ github.workspace }}
-          
+
+      # ============= BUILD =============
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+      - name: Show git submodule status
+        if: always()
+        run: git submodule status --recursive || true
