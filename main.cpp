@@ -110,8 +110,8 @@ std::unordered_map<int, bgui::checkbox*> g_task_map;
 
 void create_task_from_db(int task_id, const std::string& title, bool completed) {
     auto& task = bgui::get_layout().add<bgui::checkbox>(nullptr, completed, title, 0.35f);
-    task.request_width(bgui::mode::match_parent);
-    task.request_height(bgui::mode::wrap_content);
+    task.require_width(bgui::mode::match_parent);
+    task.require_height(bgui::mode::wrap_content);
     task.set_alignment(bgui::alignment::start);
     
     auto& style = task.get_style();
@@ -140,7 +140,7 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
     });
     
     close.set_padding(30, 0);
-    close.request_height(bgui::mode::match_parent);
+    close.require_height(bgui::mode::match_parent);
     
     auto& close_style = close.get_style();
     close_style.m_button_border_color[3] = 0.f;
@@ -180,13 +180,13 @@ int main() {
     // The main page
     auto& root = bgui::set_layout<bgui::linear>(bgui::orientation::vertical);
     auto& top_div = root.add<bgui::linear>(bgui::orientation::vertical);
-    top_div.request_width(bgui::mode::match_parent);
-    top_div.request_height(bgui::mode::pixel, 100.f);
+    top_div.require_width(bgui::mode::match_parent);
+    top_div.require_height(bgui::mode::pixel, 100.f);
     top_div.set_cross_alignment(bgui::alignment::center);
     top_div.add<bgui::text>("Todo List", 0.6f);
     
     auto& ia = top_div.add<bgui::input_area>("", 0.35f, "Task Title");
-    ia.request_width(bgui::mode::match_parent);
+    ia.require_width(bgui::mode::match_parent);
     
     auto& btn = ia.add<bgui::button>("Add", 0.4f, [&ia](){
         std::string title = ia.get_label().get_buffer();
