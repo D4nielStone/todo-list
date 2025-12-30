@@ -79,19 +79,32 @@ jobs:
         run: |
           choco install glfw3 -y
           refreshenv || true
-
-      - name: Install freetype on Windows (Chocolatey)
+          
+      - name: Find Freetype manually on Windows
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          choco install freetype -y
-          refreshenv || true
-
+          $FreetypeRoot = (Get-ChildItem 'C:\ProgramData\chocolatey\lib\' -Directory | Where-Object { $_.Name -like 'freetype*' }).FullName
+          echo "FREETYPE_ROOT=$FreetypeRoot" | Out-File -Append $env:GITHUB_ENV
 
       - name: Show git submodule status
         run: git submodule status --recursive || true
 
+
+      - name: Configure CMake (Windows)
+        if: matrix.os == 'windows-latest'
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DFREETYPE_INCLUDE_DIRS=$env:FREETYPE_ROOT\include -DFREETYPE_LIBRARY=$env:FREETYPE_ROOT\lib\freetype.lib
+          -DEXTERNALS_DIR=${{ github.workspace }}/externals
+          -DCPP_BGUI_DIR=${{ github.workspace }}/externals/cpp-bgui
+          -S ${{ github.workspace }}
+          
       - name: Configure CMake
+        if: matrix.os != 'windows-latest'
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
