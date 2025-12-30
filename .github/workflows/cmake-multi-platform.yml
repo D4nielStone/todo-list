@@ -71,9 +71,22 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          choco install sqlite freetype glfw3 -y
-          # refreshenv may be necessary in some setups; swallow errors if not present
+          choco install sqlite -y
           refreshenv || true
+      - name: Install glfw3 on Windows (Chocolatey)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          choco install glfw3 -y
+          refreshenv || true
+
+      - name: Install freetype on Windows (Chocolatey)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          choco install freetype -y
+          refreshenv || true
+
 
       - name: Show git submodule status
         run: git submodule status --recursive || true
