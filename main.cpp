@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <memory>
 
-class TaskDatabase {
+class task_data_base {
 private:
     sqlite3* db;
     sqlite3_stmt* add_stmt;
@@ -14,7 +14,7 @@ private:
     sqlite3_stmt* delete_stmt;
     
 public:
-    TaskDatabase(const std::string& db_path) : add_stmt(nullptr), update_stmt(nullptr), delete_stmt(nullptr) {
+    task_data_base(const std::string& db_path) : add_stmt(nullptr), update_stmt(nullptr), delete_stmt(nullptr) {
         if (sqlite3_open(db_path.c_str(), &db) != SQLITE_OK) {
             std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
         }
@@ -27,7 +27,7 @@ public:
         prepare_statements();
     }
     
-    ~TaskDatabase() {
+    ~task_data_base() {
         sqlite3_finalize(add_stmt);
         sqlite3_finalize(update_stmt);
         sqlite3_finalize(delete_stmt);
@@ -103,7 +103,7 @@ public:
 };
 
 // Global database instance
-std::unique_ptr<TaskDatabase> g_db;
+std::unique_ptr<task_data_base> g_db;
 
 // Cache task elements to avoid linear search
 std::unordered_map<int, bgui::checkbox*> g_task_map;
@@ -169,7 +169,7 @@ void load_tasks_from_db() {
 
 int main() {
     // Initialize database
-    g_db = std::make_unique<TaskDatabase>("todo_list.db");
+    g_db = std::make_unique<task_data_base>("todo_list.db");
     
     // set up backends
     GLFWwindow* window = bgui::set_up_glfw(600, 400, "Todo List App");
