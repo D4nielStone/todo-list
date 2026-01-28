@@ -84,14 +84,14 @@ int main() {
     top_div.set_cross_alignment(bgui::alignment::center);
     top_div.add<bgui::text>("Todo List", 0.6f);
     
-    auto& ia = top_div.add<bgui::input_area>("", 0.35f, "task Title");
+    auto& ia = top_div.add<bgui::input_area>("", 0.35f, "Task Title");
     ia.require_width(bgui::mode::match_parent);
     
     auto& btn = ia.add<bgui::button>("Add", 0.4f, [&ia](){
-        std::string title = ia.get_label().get_buffer();
+        std::string title = ia.get_buffer();
         if (!title.empty()) {
             create_task(title);
-            ia.get_label().set_buffer("");
+            ia.set_buffer("");
         }
     });
     
