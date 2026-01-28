@@ -43,3 +43,7 @@
 # out folder
 out
 .vscode/launch.json
+
+*.db 
+*.db-shm
+*.db-wal
