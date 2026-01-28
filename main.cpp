@@ -27,6 +27,7 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
         g_task_map.erase(task_id);
         bgui::get_layout().remove(&task);
     });
+    close.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::wrap_content);
     
 }
 
@@ -70,14 +71,17 @@ int main() {
             .visible = true
         }
     };
-    top_div.add<bgui::text>("Todo List", 0.6f);
-    auto& ia = top_div.add<bgui::input_area>("", 0.35f, "Task Title");
+    top_div.add<bgui::text>("Todo List", 0.6f).style.layout.require_mode(bgui::mode::stretch, bgui::mode::wrap_content);
+    auto& ia = top_div.add<bgui::input_area>("", 0.4, "Task Title");
     auto& btn = ia.add<bgui::button>("Add", 0.4f, [&ia](){
         std::string title = ia.get_buffer();
         if (!title.empty()) {
             create_task(title);
+        } else {
+            create_task("Unnamed task");
         }
     });
+    btn.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::wrap_content);
 
     // Load existing tasks from database
     load_tasks_from_db();
