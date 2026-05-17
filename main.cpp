@@ -27,7 +27,7 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
         g_task_map.erase(task_id);
         bgui::get_layout().remove(&task);
     });
-    close.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::wrap_content);
+    close.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::stretch);
     
 }
 
@@ -58,6 +58,8 @@ int main() {
     bgui::set_up_gl3();
     bgui::set_up_freetype();
     bgui::set_up();
+
+    bgui::style_manager::get_instance().apply_theme(bgui::dark_theme());
 
     // The main page
     auto& root = bgui::set_layout<bgui::linear>(bgui::orientation::vertical);
