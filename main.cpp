@@ -20,7 +20,7 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
         }
     });
 
-    auto& close = task.add<bgui::button>("Remove", 0.4f, [&task, task_id](){
+    auto& close = task.add<bgui::button>("Remove", 0.3f, [&task, task_id](){
         if (g_db) {
             g_db->delete_task(task_id);
         }
@@ -60,6 +60,7 @@ int main() {
     bgui::set_up();
 
     bgui::style_manager::get_instance().apply_theme(bgui::dark_theme());
+    bgui::style_manager::get_instance().get_global().visual.background.normal = {0.5, 0.5, 0.5, 1.0};
 
     // The main page
     auto& root = bgui::set_layout<bgui::linear>(bgui::orientation::vertical);
