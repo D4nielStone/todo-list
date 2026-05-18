@@ -9,6 +9,8 @@ std::unordered_map<int, bgui::checkbox*> g_task_map;
 
 void create_task_from_db(int task_id, const std::string& title, bool completed) {
     auto& task = bgui::get_layout().add<bgui::checkbox>(nullptr, completed, title, 0.35f);
+    task.get_label().style.layout.require_mode(bgui::mode::stretch, bgui::mode::wrap_content);
+    task.get_label().style.layout.align = bgui::vec<2Ul, bgui::alignment>{bgui::alignment::start, bgui::alignment::center};
 
     // Cache the task pointer
     g_task_map[task_id] = &task;
@@ -28,7 +30,8 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
         bgui::get_layout().remove(&task);
     });
     close.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::stretch);
-    
+    close.style.visual.border.normal = 0.0f;
+    close.style.visual.background.normal = 0.0f;
 }
 
 void create_task(const std::string& title) {
@@ -60,7 +63,6 @@ int main() {
     bgui::set_up();
 
     bgui::style_manager::get_instance().apply_theme(bgui::dark_theme());
-    bgui::style_manager::get_instance().get_global().visual.background.normal = {0.5, 0.5, 0.5, 1.0};
 
     // The main page
     auto& root = bgui::set_layout<bgui::linear>(bgui::orientation::vertical);
@@ -74,17 +76,18 @@ int main() {
             .visible = true
         }
     };
-    top_div.add<bgui::text>("Todo List", 0.6f).style.layout.require_mode(bgui::mode::stretch, bgui::mode::wrap_content);
-    auto& ia = top_div.add<bgui::input_area>("", 0.4, "Task Title");
-    auto& btn = ia.add<bgui::button>("Add", 0.4f, [&ia](){
+    top_div.add<bgui::text>("Todo List", 1.f).style.layout.require_mode(bgui::mode::stretch, bgui::mode::wrap_content);
+    auto& input_div = top_div.add<bgui::linear>(bgui::orientation::horizontal);
+    input_div.style.layout.require_mode(bgui::mode::match_parent, bgui::mode::wrap_content);
+    input_div.style.layout.set_padding(5, 5);
+    auto& ia = input_div.add<bgui::input_area>("", 0.35f, "Task label here");
+    auto& btn = input_div.add<bgui::button>("Add", 0.35f, [&ia](){
         std::string title = ia.get_buffer();
-        if (!title.empty()) {
-            create_task(title);
-        } else {
-            create_task("Unnamed task");
-        }
+        if (!title.empty()) create_task(title);
     });
     btn.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::wrap_content);
+    btn.style.visual.border.normal = 0.0f;
+    btn.style.visual.background.normal = 0.1f;
 
     // Load existing tasks from database
     load_tasks_from_db();
@@ -92,6 +95,7 @@ int main() {
     while(!bgui::should_close_glfw()) {
         bgui::glfw_update(bgui::get_context());
         bgui::on_update();
+        bgui::gl3_clear();
         bgui::gl3_render(bgui::get_draw_data());
         bgui::swap_glfw();
     }
