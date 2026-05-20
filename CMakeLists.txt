@@ -6,7 +6,7 @@ project(TodoList)
 
 set(BGUI_BUILD_EXAMPLES OFF)
 set(BGUI_TESTS OFF)
-add_executable(app main.cpp)
+add_executable(app app/main.cpp)
 
 add_subdirectory(external/cpp-bgui)
 

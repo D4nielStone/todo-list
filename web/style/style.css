@@ -1,0 +1,79 @@
+body {
+    font-family: "Ubuntu", "Noto sans", sans-serif;
+    margin: 0;
+    padding: 5px;
+    background-color: color(sRGB 0.1 0.1 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/*Configuring the dark linear scheme (bgui imp)*/
+.linear {
+    background-color: color(sRGB 0.08 0.08 0.08);
+    border-color: color(sRGB 0.07 0.07 0.07);
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+    text-align: center;
+    padding: 0px 3px 0px 3px;
+    gap: 5px;
+}
+
+.vertical {
+    display: flex;
+    flex-direction: column;
+}
+
+.horizontal {
+    display: flex;
+    flex-direction: row;
+}
+
+.text {
+    margin: 0px;
+    font-weight: 400;
+    font-size: 40px;
+    color: white;
+}
+
+input {
+    padding: 1px 5px 1px 5px;
+    color: white;
+    font-weight: 400;
+    font-size: 14px;
+    background-color: rgb(10% 10% 10%);
+    border: rgb(6% 6% 6%) solid 2px;
+    border-radius: 2px;
+    width: 100%;
+}
+
+
+button {
+    padding: 2px;
+    color: white;
+    background: rgba(0, 0, 0, 0);
+    border: none;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+input:hover {
+    background-color: rgb(12% 12% 12%);
+}
+
+
+input:focus {
+    background-color: rgb(12% 12% 12%);
+    outline: none;
+}
+
+#input-div {
+    padding: 5px;
+}
+
+::placeholder {
+    color: white;
+    opacity: 40%;
+}
