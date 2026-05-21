@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="js/script.js" defer></script>
   <link rel="stylesheet" href="style/style.css">
   <title>Todo List</title>
 </head>
@@ -12,8 +13,8 @@
     <h1 class="text">Todo List</h1>
     <!--input div-->
     <div class="linear horizontal" id="input-div">
-      <input placeholder="Task label here">
-      <button>Add</button>
+      <input id="ipt" placeholder="Task label here">
+      <button onclick="createTask()">Add</button>
     </div>
   </div>
 </body>
