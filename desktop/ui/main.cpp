@@ -1,8 +1,9 @@
 #include <bgui.hpp>
-#include "task.hpp"
+#include <memory>
+#include "api/task_api_client.hpp"
 
-// Global database instance
-std::unique_ptr<task_data_base> g_db;
+// Global api instance
+std::unique_ptr<task_api_client> g_api;
 
 // Cache task elements to avoid linear search
 std::unordered_map<int, bgui::checkbox*> g_task_map;
@@ -17,14 +18,14 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
     
     // Update database when checkbox state changes
     task.set_on_change([task_id](bool checked) {
-        if (g_db) {
-            g_db->update_task_status(task_id, checked);
+        if (g_api) {
+            g_api->update_task_status(task_id, checked);
         }
     });
 
     auto& close = task.add<bgui::button>("Remove", 0.3f, [&task, task_id](){
-        if (g_db) {
-            g_db->delete_task(task_id);
+        if (g_api) {
+            g_api->delete_task(task_id);
         }
         g_task_map.erase(task_id);
         bgui::get_layout().remove(&task);
@@ -37,14 +38,14 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
 void create_task(const std::string& title) {
     if (title.empty()) return;
     
-    int task_id = g_db->add_task(title);
+    int task_id = g_api->add_task(title);
     if (task_id != -1) {
         create_task_from_db(task_id, title, false);
     }
 }
 
 void load_tasks_from_db() {
-    auto tasks = g_db->get_all_tasks();
+    auto tasks = g_api->get_all_tasks();
     g_task_map.reserve(tasks.size());
     
     for (const auto& task : tasks) {
@@ -53,14 +54,13 @@ void load_tasks_from_db() {
 }
 
 int main() {
-    // Initialize database
-    g_db = std::make_unique<task_data_base>(".todo_list.db");
-    
     // set up backends
     GLFWwindow* window = bgui::set_up_glfw(600, 400, "Todo List App");
     bgui::set_up_gl3();
     bgui::set_up_freetype();
     bgui::set_up();
+
+    g_api = std::make_unique<task_api_client>();
 
     bgui::style_manager::get_instance().apply_theme(bgui::dark_theme());
 
@@ -80,10 +80,13 @@ int main() {
     auto& input_div = top_div.add<bgui::linear>(bgui::orientation::horizontal);
     input_div.style.layout.require_mode(bgui::mode::match_parent, bgui::mode::wrap_content);
     input_div.style.layout.set_padding(5, 5);
-    auto& ia = input_div.add<bgui::input_area>("", 0.35f, "Task label here");
+    auto& ia = input_div.add<bgui::input_area>("", 0.35f, create_task, "Task label here");
     auto& btn = input_div.add<bgui::button>("Add", 0.35f, [&ia](){
         std::string title = ia.get_buffer();
-        if (!title.empty()) create_task(title);
+        if (!title.empty()) {
+            create_task(title);
+            ia.set_buffer("");
+        }
     });
     btn.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::wrap_content);
     btn.style.visual.border.normal = 0.0f;
