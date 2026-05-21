@@ -1,32 +1,54 @@
 #include "task_api_client.hpp"
+#include <iostream>
 
 task_api_client::task_api_client(const std::string& url) : m_url(url) {}
 std::vector<task> task_api_client::get_all_tasks() {
 
     auto response =
-        cpr::Get(
-            cpr::Url{
-                m_url + "/tasks"
-            }
-        );
+    cpr::Get(
+        cpr::Url{
+            m_url + "/tasks"
+        },
+
+        cpr::Timeout{5000}
+    );
 
     std::vector<task> tasks;
 
     if (response.status_code == 200) {
 
-        auto json =
-            nlohmann::json::parse(
-                response.text
-            );
+        try {
 
-        for (auto& item : json) {
+            auto json =
+                nlohmann::json::parse(
+                    response.text
+                );
+            for (auto& item : json) {
 
-            tasks.push_back({
-                item["id"],
-                item["title"],
-                item["completed"]
-            });
+                tasks.push_back({
+                    item["id"],
+                    item["title"],
+                    item["completed"]
+                });
+            }
+
+        } catch (
+            const std::exception& e
+        ) {
+
+            std::cerr
+                << e.what()
+                << std::endl;
         }
+    }
+    if (response.status_code != 200) {
+
+        std::cerr
+            << "Request failed: "
+            << response.status_code
+            << std::endl;
+
+        return {};
     }
 
     return tasks;
