@@ -1,12 +1,13 @@
-Todo List (using bgui)
+Todo List
 ===
 
-<a href="https://github.com/D4nielStone/todo-list/releases/">![GitHub Tag](https://img.shields.io/github/v/tag/D4nielStone/todo-list?style=flat-square&label=Latest)</a>
+<a href="https://github.com/D4nielStone/todo-list/releases/">![GitHub Tag](https://img.shields.io/github/v/tag/D4nielStone/todo-list?label=Latest)</a>
 
 Is a ToDo List app made in cpp using my GUI framework, <a href="https://www.github.com/D4nielStone/cpp-bgui" target="_blank">Bubble GUI</a>.<br>
 This Software uses sqlite3 to store database. If you want to compile, please make sure you have installed sqlite-devel lib in your system.
 
-<center><img width="600" height="475" alt="1267409194d39d3dad74763a5faaa89e6997e1fb" src="https://github.com/user-attachments/assets/ce4a9f5a-9fc7-4f85-8344-63adc41117bb" /></center>
+<center><img width="730" height="558" alt="image" src="https://github.com/user-attachments/assets/d0a41002-8a6a-406e-b59d-3c6df22b978d" />
+</center>
 
 # Building todo-list — Ubuntu and Windows
 
