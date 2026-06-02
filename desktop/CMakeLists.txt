@@ -7,4 +7,4 @@ include_directories(
 add_executable(app ui/main.cpp api/task_api_client.cpp)
 find_package(SQLite3 REQUIRED)
 
-target_link_libraries(app PRIVATE SQLite::SQLite3 bgui cpr::cpr nlohmann_json::nlohmann_json)
+target_link_libraries(app PRIVATE SQLite3::SQLite3 bgui cpr::cpr nlohmann_json::nlohmann_json)
