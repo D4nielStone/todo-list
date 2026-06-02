@@ -1,9 +1,6 @@
 #include <bgui.hpp>
 #include <memory>
-#include "api/task_api_client.hpp"
-
-// Global api instance
-std::unique_ptr<task_api_client> g_api;
+#include "api/task.hpp"
 
 // Cache task elements to avoid linear search
 std::unordered_map<int, bgui::checkbox*> g_task_map;
@@ -17,16 +14,16 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
     g_task_map[task_id] = &task;
     
     // Update database when checkbox state changes
-    task.set_on_change([task_id](bool checked) {
+    /*task.set_on_change([task_id](bool checked) {
         if (g_api) {
             g_api->update_task_status(task_id, checked);
         }
-    });
+    });*/
 
     auto& close = task.add<bgui::button>("Remove", 0.3f, [&task, task_id](){
-        if (g_api) {
+        /*if (g_api) {
             g_api->delete_task(task_id);
-        }
+        }*/
         g_task_map.erase(task_id);
         bgui::get_layout().remove(&task);
     });
@@ -38,16 +35,16 @@ void create_task_from_db(int task_id, const std::string& title, bool completed) 
 void create_task(const std::string& title) {
     if (title.empty()) return;
     
-    int task_id = g_api->add_task(title);
+    int task_id = 0;//g_api->add_task(title);
     if (task_id != -1) {
         create_task_from_db(task_id, title, false);
     }
 }
 
 void load_tasks_from_db() {
-    auto tasks = g_api->get_all_tasks();
+    auto tasks = std::vector<task>{};//g_api->get_all_tasks();
     g_task_map.reserve(tasks.size());
-    
+
     for (const auto& task : tasks) {
         create_task_from_db(task.id, task.title, task.completed);
     }
@@ -60,7 +57,7 @@ int main() {
     bgui::set_up_freetype();
     bgui::set_up();
 
-    g_api = std::make_unique<task_api_client>();
+    //g_api = std::make_unique<task_api_client>();
 
     bgui::style_manager::get_instance().apply_theme(bgui::dark_theme());
 
