@@ -12,7 +12,7 @@ endif()
 set(BGUI_BUILD_EXAMPLES OFF)
 set(BGUI_TESTS OFF)
 set(BGUI_USE_VUKAN OFF)
-set(BGUI_USE_FREETYPE OFF)
+set(BGUI_USE_FREETYPE ON)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
