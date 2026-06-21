@@ -92,9 +92,20 @@ int main() {
     // Load existing tasks from database
     load_tasks_from_db();
 
-    while(!bgui::should_close_glfw()) {
-        bgui::glfw_update(bgui::get_context());
+    // Refresing callback for GLFW window refresh events
+    bgui::get_context().m_refresh_func = [&]() {
         bgui::on_update();
+        bgui::glfw_update(bgui::get_context());
+        bgui::gl3_clear();
+        bgui::gl3_render(bgui::get_draw_data());
+        bgui::swap_glfw();
+    };
+    while(!bgui::should_close_glfw()) {
+        glfwPollEvents();
+        bgui::on_update();
+        bgui::glfw_update(bgui::get_context());
+
+        // Normal rendering flow
         bgui::gl3_clear();
         bgui::gl3_render(bgui::get_draw_data());
         bgui::swap_glfw();
