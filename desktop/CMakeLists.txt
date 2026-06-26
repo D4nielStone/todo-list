@@ -5,6 +5,5 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/desktop
 )
 add_executable(app ui/main.cpp)
-find_package(SQLite3 REQUIRED)
 
-target_link_libraries(app PRIVATE SQLite3::SQLite3 bgui cpr::cpr nlohmann_json::nlohmann_json)
+target_link_libraries(app PRIVATE bgui cpr::cpr nlohmann_json::nlohmann_json)

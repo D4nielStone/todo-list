@@ -89,27 +89,21 @@ int main() {
     btn.style.visual.border.normal = 0.0f;
     btn.style.visual.background.normal = 0.1f;
 
+    root.add<bgui::window, bgui::layer::overlay>("login");
+
     // Load existing tasks from database
     load_tasks_from_db();
 
     // Refresing callback for GLFW window refresh events
     bgui::get_context().m_refresh_func = [&]() {
-        bgui::on_update();
         bgui::glfw_update(bgui::get_context());
+        bgui::on_update();
         bgui::gl3_clear();
         bgui::gl3_render(bgui::get_draw_data());
         bgui::swap_glfw();
     };
-    while(!bgui::should_close_glfw()) {
-        glfwPollEvents();
-        bgui::on_update();
-        bgui::glfw_update(bgui::get_context());
-
-        // Normal rendering flow
-        bgui::gl3_clear();
-        bgui::gl3_render(bgui::get_draw_data());
-        bgui::swap_glfw();
-    }
+    
+    bgui::glfw_main_loop();
     
     bgui::shutdown_gl3();
     bgui::shutdown_glfw();
