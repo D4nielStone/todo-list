@@ -1,5 +1,6 @@
 #include <bgui.hpp>
 #include <memory>
+#include <iostream>
 #include "api/task.hpp"
 
 // Cache task elements to avoid linear search
@@ -89,7 +90,14 @@ int main() {
     btn.style.visual.border.normal = 0.0f;
     btn.style.visual.background.normal = 0.1f;
 
-    root.add<bgui::window, bgui::layer::overlay>("login");
+    auto& win = root.add<bgui::window, bgui::layer::overlay>("login");
+    win.set_floating(false);
+    win.style.layout.require_mode(bgui::mode::match_parent, bgui::mode::match_parent);
+    win.style.layout.set_margin(10, 10);
+    auto& cntx = win.add<bgui::linear>(bgui::orientation::vertical);
+    cntx.style.layout.set_margin(10, 10);
+    cntx.style.layout.require_mode(bgui::mode::match_parent, bgui::mode::match_parent);
+    cntx.add<bgui::input_area>("", 0.35f, [](const std::string& username ){}, "username");
 
     // Load existing tasks from database
     load_tasks_from_db();
