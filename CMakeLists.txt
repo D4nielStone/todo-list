@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-project(TLB)
+cmake_minimum_required(VERSION 3.26)
+project(TodoList)
 
 if(DEFINED ENV{VCPKG_ROOT})
     set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
@@ -14,7 +14,7 @@ if(WIN32 AND NOT DEFINED VCPKG_TARGET_TRIPLET)
     set(VCPKG_TARGET_TRIPLET x64-windows CACHE STRING "Target triplet for vcpkg")
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -29,9 +29,6 @@ include_directories(
 
 
 add_subdirectory(external/cpp-bgui)
-add_subdirectory(external/cpr)
-add_subdirectory(external/nlohman)
-find_package(SQLite3 REQUIRED)
 find_package(glfw3 REQUIRED)
 
 add_subdirectory(desktop)
