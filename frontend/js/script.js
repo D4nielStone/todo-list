@@ -112,7 +112,7 @@ async function loadTasks() {
 
         deleteBtn.onclick = async () => {
             await fetch(
-                `http://localhost:3000/tasks/${task.id}`,
+                `http://localhost:${PORT}/tasks/${task.id}`,
                 {
                     method: "DELETE"
                 }
