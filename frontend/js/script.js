@@ -1,9 +1,10 @@
+// create task in the data base
 async function createTask() {
-
+    //get input text
     let txt = document.getElementById('ipt').value;
 
+    // verify if txt input is empty
     if (txt.trim() !== "") {
-
         await fetch(
             "http://localhost:3000/tasks",
             {
@@ -22,23 +23,23 @@ async function createTask() {
     }
 }
 
+// read and update tasks states
 async function loadTasks() {
-
     const response = await fetch("http://localhost:3000/tasks");
     const tasks = await response.json();
     const container = document.getElementById("tasks");
 
+    // clean container
     container.innerHTML = "";
 
     tasks.forEach(task => {
-
         const newDiv = document.createElement("div");
         newDiv.style.display = "flex";
         newDiv.style.alignItems = "center";
         newDiv.style.justifyContent = "space-between";
         newDiv.style.marginBottom = "8px";
 
-        // Container para alinhar checkbox e texto à esquerda
+        // container to align to the left
         const leftGroup = document.createElement("div");
         leftGroup.style.display = "flex";
         leftGroup.style.alignItems = "center";
@@ -47,13 +48,12 @@ async function loadTasks() {
         chkContent.type = "checkbox";
         chkContent.checked = task.completed;
 
-        // --- ESTILIZAÇÃO DO CHECKBOX (IGUAL AO DESKTOP) ---
-        chkContent.style.appearance = "none";
-        chkContent.style.webkitAppearance = "none";
+        // checkbox stabalization
+        chkContent.style.appearance = "none"
         chkContent.style.width = "14px";
         chkContent.style.height = "14px";
         chkContent.style.border = "none";
-        chkContent.style.borderRadius = "0px"; // Quadrado perfeito
+        chkContent.style.borderRadius = "1px";
         chkContent.style.cursor = "pointer";
         chkContent.style.marginRight = "12px";
         chkContent.style.display = "inline-flex";
@@ -61,12 +61,12 @@ async function loadTasks() {
         chkContent.style.justifyContent = "center";
         chkContent.style.outline = "none";
 
-        // Função interna para alternar as cores baseadas no estado
+        // color based on state
         function updateCheckboxStyle(checkbox) {
             if (checkbox.checked) {
-                checkbox.style.backgroundColor = "#aaa"; // Cinza claro se marcado
+                checkbox.style.backgroundColor = "#aaa"; // light gray
                 checkbox.innerText = "✓";
-                checkbox.style.color = "#222"; // Cor do "visto"
+                checkbox.style.color = "#222"; // check color
                 checkbox.style.fontSize = "10px";
                 checkbox.style.fontWeight = "bold";
             } else {
@@ -75,11 +75,11 @@ async function loadTasks() {
             }
         }
 
-        // Aplica o estilo inicial
+        // apply initial style
         updateCheckboxStyle(chkContent);
 
         chkContent.addEventListener("change", async () => {
-            // Atualiza o visual imediatamente na tela
+            // update visual
             updateCheckboxStyle(chkContent);
 
             await fetch(
@@ -101,6 +101,7 @@ async function loadTasks() {
         txtContent.style.color = "white";
         txtContent.style.fontFamily = "sans-serif";
 
+        // delete button
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Remove";
         deleteBtn.style.background = "none";
@@ -119,7 +120,7 @@ async function loadTasks() {
             loadTasks();
         };
 
-        // Montagem da estrutura
+        // struct set
         leftGroup.appendChild(chkContent);
         leftGroup.appendChild(txtContent);
         
