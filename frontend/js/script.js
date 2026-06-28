@@ -6,7 +6,7 @@ async function createTask() {
     // verify if txt input is empty
     if (txt.trim() !== "") {
         await fetch(
-            "http://localhost:3000/tasks",
+            "https://todo-list-bubble.onrender.com/tasks",
             {
                 method: "POST",
                 headers: {
@@ -25,7 +25,7 @@ async function createTask() {
 
 // read and update tasks states
 async function loadTasks() {
-    const response = await fetch("http://localhost:3000/tasks");
+    const response = await fetch("https://todo-list-bubble.onrender.com/tasks");
     const tasks = await response.json();
     const container = document.getElementById("tasks");
 
@@ -112,7 +112,7 @@ async function loadTasks() {
 
         deleteBtn.onclick = async () => {
             await fetch(
-                `http://localhost:${PORT}/tasks/${task.id}`,
+                `https://todo-list-bubble.onrender.com/tasks/${task.id}`,
                 {
                     method: "DELETE"
                 }
