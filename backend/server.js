@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Configuração do Cliente MongoDB
+// MongoDB Client Configuration
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -19,112 +19,128 @@ const client = new MongoClient(uri, {
   }
 });
 
-// Variável global para armazenar a referência da coleção do banco de dados
+// Global variable to store the database collection reference
 let tasksCollection;
 
-// Função para conectar ao banco de dados antes de iniciar as rotas
+// Function to connect to the database before starting the routes
 async function connectDB() {
     try {
         await client.connect();
-        // Cria ou acessa o banco "todo_list" e a coleção "tasks"
-        const database = client.db("todo_list");
+        // Connect to "todo-list" database and "tasks" collection
+        const database = client.db("todo-list");
         tasksCollection = database.collection("tasks");
-        console.log("-> Conectado ao MongoDB com sucesso! 🎉");
+        console.log(`[${new Date().toISOString()}] -> Successfully connected to MongoDB! 🎉`);
     } catch (error) {
-        console.error("Erro ao conectar no MongoDB:", error);
-        process.exit(1); // Fecha o servidor se não conseguir conectar ao banco
+        console.error(`[${new Date().toISOString()}] CRITICAL: Error connecting to MongoDB:`, error);
+        process.exit(1); // Shutdown server if database connection fails
     }
 }
 
-// Inicializa a conexão
+// Initialize database connection
 connectDB();
 
 // ====================================================================
-// ROTAS DA API (Agora todas usam async/await porque o banco é externo)
+// API ROUTES (Async/Await handled for external database operations)
 // ====================================================================
 
-// GET - listar tarefas
+// GET - List all tasks
 app.get('/tasks', async (req, res) => {
     try {
-        // Busca todas as tarefas do banco e transforma em um Array
+        // Fetch all tasks from the collection and convert to an Array
         const tasks = await tasksCollection.find({}).toArray();
-        console.log(`[GET] /tasks - tarefas encontradas: ${tasks.length}`);
+        console.log(`[${new Date().toISOString()}] GET /tasks - Success: Found ${tasks.length} tasks.`);
         res.json(tasks);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao buscar tarefas" });
+        console.error(`[${new Date().toISOString()}] GET /tasks - Error:`, error.message);
+        res.status(500).json({ error: "Internal Server Error while fetching tasks" });
     }
 });
 
-// POST - criar uma nova tarefa
+// POST - Create a new task
 app.post('/tasks', async (req, res) => {
     try {
         const { title } = req.body;
+
+        // Basic validation
+        if (!title) {
+            console.log(`[${new Date().toISOString()}] POST /tasks - BadRequest: Title missing.`);
+            return res.status(400).json({ error: "Title is required" });
+        }
         
         const newTask = {
-            id: Date.now().toString(), // mantendo seu id baseado em timestamp
+            id: Date.now().toString(), // Keeping the timestamp-based ID
             title: title,
             completed: false
         };
 
-        // Insere o objeto direto na coleção do MongoDB
+        // Insert the task document into MongoDB
         await tasksCollection.insertOne(newTask);
         
-        console.log(`[POST] /tasks - tarefa criada no banco.`);
+        console.log(`[${new Date().toISOString()}] POST /tasks - Success: Task created with ID ${newTask.id}`);
         res.status(201).json(newTask);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao criar tarefa" });
+        console.error(`[${new Date().toISOString()}] POST /tasks - Error:`, error.message);
+        res.status(500).json({ error: "Internal Server Error while creating task" });
     }
 });
 
-// PUT - atualizar o status da tarefa
+// PUT - Update task completion status
 app.put('/tasks/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { completed } = req.body;
         
-        // Atualiza o documento onde o "id" seja igual ao passado na URL
-        const result = await tasksCollection.findOneAndUpdate(
+        // Basic validation to ensure 'completed' field is a boolean
+        if (typeof completed !== 'boolean') {
+            console.log(`[${new Date().toISOString()}] PUT /tasks/${id} - BadRequest: Invalid 'completed' value.`);
+            return res.status(400).json({ error: "'completed' status must be a boolean" });
+        }
+
+        // Update the document matching the custom string "id"
+        const updatedTask = await tasksCollection.findOneAndUpdate(
             { id: id },
             { $set: { completed: completed } },
-            { returnDocument: 'after' } // Retorna a tarefa já atualizada
+            { returnDocument: 'after' } // Returns the modified document instead of the original
         );
         
-        // No driver nativo do Mongo, se não achar, o value vem vazio
-        if (!result) {
-            console.log(`[PUT] /tasks/${id} - Erro: tarefa não encontrada`);
-            return res.status(404).json({ error: 'Tarefa não encontrada' });
+        // Check if the task was found and updated
+        if (!updatedTask) {
+            console.log(`[${new Date().toISOString()}] PUT /tasks/${id} - NotFound: Task does not exist.`);
+            return res.status(404).json({ error: 'Task not found' });
         }
         
-        console.log(`[PUT] /tasks/${id} - Status alterado no banco`);
-        res.json(result);
+        console.log(`[${new Date().toISOString()}] PUT /tasks/${id} - Success: Task status updated.`);
+        res.json(updatedTask);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao atualizar tarefa" });
+        console.error(`[${new Date().toISOString()}] PUT /tasks/:id - Error:`, error.message);
+        res.status(500).json({ error: "Internal Server Error while updating task" });
     }
 });
 
-// DELETE - remover tarefa
+// DELETE - Remove a task
 app.delete('/tasks/:id', async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Deleta o documento que possui o id correspondente
+        // Delete the document matching the custom string "id"
         const result = await tasksCollection.deleteOne({ id: id });
         
-        // deletedCount indica quantos registros foram apagados
+        // deletedCount confirms if any record was removed
         if (result.deletedCount === 0) {
-            console.log(`[DELETE] /tasks/${id} - Erro: tarefa não encontrada`);
-            return res.status(404).json({ error: 'Tarefa não encontrada' });
+            console.log(`[${new Date().toISOString()}] DELETE /tasks/${id} - NotFound: Task does not exist.`);
+            return res.status(404).json({ error: 'Task not found' });
         }
         
-        console.log(`[DELETE] /tasks/${id} - Tarefa removida do banco.`);
+        console.log(`[${new Date().toISOString()}] DELETE /tasks/${id} - Success: Task removed.`);
         res.status(204).send();
     } catch (error) {
-        res.status(500).json({ error: "Erro ao deletar tarefa" });
+        console.error(`[${new Date().toISOString()}] DELETE /tasks/:id - Error:`, error.message);
+        res.status(500).json({ error: "Internal Server Error while deleting task" });
     }
 });
 
 app.listen(PORT, () => {
     console.log('====================================');
-    console.log(` Servidor rodando na porta ${PORT}`);
+    console.log(` Server running on port ${PORT}`);
     console.log('====================================');
 });
