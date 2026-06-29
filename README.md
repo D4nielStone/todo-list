@@ -1,127 +1,98 @@
-Todo List
+Todo List 
 ===
 
-<a href="https://github.com/D4nielStone/todo-list/releases/">![GitHub Tag](https://img.shields.io/github/v/tag/D4nielStone/todo-list?label=Latest)</a>
+<a href="https://github.com/D4nielStone/todo-list/releases/">![GitHub Tag](https://img.shields.io/github/v/tag/D4nielStone/todo-list?label=latest)</a>
 
-Is a ToDo List app made in cpp using my GUI framework, <a href="https://www.github.com/D4nielStone/cpp-bgui" target="_blank">Bubble GUI</a>.<br>
+A multi-platform ToDo List application featuring a C++ desktop client and a full-stack modern web application ecosystem.
 
-<center><img width="730" height="558" alt="image" src="https://github.com/user-attachments/assets/d0a41002-8a6a-406e-b59d-3c6df22b978d" />
-</center>
+<center><img width="600" height="400" alt="image" src="https://github.com/user-attachments/assets/16040f72-8bac-4f2f-884f-3d18664f0a12"/></center>
 
-# Building todo-list — Ubuntu and Windows
+# 📁 Repository Structure
 
-This file describes how to build the repository on Ubuntu (Linux) and Windows based on the repository's CI workflow (.github/workflows/cmake-multi-platform.yml).
-
-General notes
-- The project uses CMake. The workflow sets `CMAKE_C_COMPILER`, `CMAKE_CXX_COMPILER`, and (on Windows) a vcpkg toolchain file.
-- The repository uses git submodules — make sure to initialize them before configuring CMake.
+```text
+todo-list/
+├── desktop/          # C++ GUI Client (CMake, Bubble GUI, SQLite)
+└── web/
+    ├── backend/      # Node.js API Server (Express, PostgreSQL, CORS)
+    └── frontend/     # Web User Interface
+```
 
 ---
 
-## Common first steps (both systems)
+# 🖥️ 1. Desktop Client (`/desktop`)
 
-1. Clone the repo and initialize submodules:
+The desktop version is a native C++ client built using the custom <a href="https://github.com" target="_blank">Bubble GUI</a> framework and SQLite.
+
+### Common Setup Steps
 ```bash
-git clone https://github.com/D4nielStone/todo-list.git
-cd todo-list
 git submodule update --init --recursive
-```
-
-2. Create a build directory (recommended):
-```bash
-mkdir -p build
+cmake -B out && cmake --build
 ```
 
 ---
 
-## Ubuntu (bash)
+# ⚙️ 2. Web Backend (`/web/backend`)
 
-1. Install OS packages used in the workflow:
+The API server handles task management, storing relational data inside a PostgreSQL database.
+
+### Installation
 ```bash
-sudo apt-get update
-sudo apt-get install -y \
-  libsqlite3-dev \
-  libglfw3-dev \
-  libfreetype6-dev \
-  xorg-dev \
-  libx11-dev \
-  libxrandr-dev \
-  libxinerama-dev \
-  libxcursor-dev \
-  libxi-dev
+cd web/backend
+npm install
 ```
 
-2. Choose compiler:
-- GCC: `gcc` / `g++`
-- Clang: `clang` / `clang++`
-
-3. Configure CMake (example using GCC and Release build):
-```bash
-cmake -B build \
-  -DCMAKE_C_COMPILER=gcc \
-  -DCMAKE_CXX_COMPILER=g++ \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DEXTERNALS_DIR="${PWD}/externals" \
-  -DCPP_BGUI_DIR="${PWD}/externals/cpp-bgui" \
-  -S "${PWD}"
+### Environment Config (`web/backend/.env`)
+Create a `.env` file in the backend folder:
+```env
+PORT=5000
+DB_USER=your_postgres_username
+DB_PASSWORD=your_postgres_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=todo_database
 ```
 
-(Replace `gcc`/`g++` with `clang`/`clang++` if you want Clang.)
+### Database Schema Setup
+```sql
+CREATE DATABASE todo_database;
+\c todo_database;
 
-4. Build:
-```bash
-cmake --build build --config Release
+CREATE TABLE todos (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    completed BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-5. (Optional) See submodule status if you have issues:
+### Running Server
 ```bash
-git submodule status --recursive
+npm run dev   # Development (Nemon)
+npm start     # Production (Node)
 ```
 
 ---
 
-## Windows (PowerShell / cmd)
+# 🌐 3. Web Frontend (`/web/frontend`)
 
-The CI uses vcpkg to install and manage dependencies on Windows.
+The responsive web user interface that communicates directly with the Node.js API server.
 
-1. Clone vcpkg and bootstrap (PowerShell example):
-```powershell
-git clone https://github.com/Microsoft/vcpkg.git
-.\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+### Installation
+```bash
+cd web/frontend
+npm install
 ```
 
-2. Install required packages via vcpkg (x64 example from workflow):
-```powershell
-.\vcpkg\vcpkg install glfw3:x64-windows
-.\vcpkg\vcpkg install freetype:x64-windows
-.\vcpkg\vcpkg install sqlite3:x64-windows
-.\vcpkg\vcpkg integrate install
+### Execution
+```bash
+npm start
 ```
-
-3. Configure CMake (PowerShell example). The workflow uses the vcpkg toolchain file and MSVC (`cl`) on Windows:
-```powershell
-cmake -B "${PWD}\build" `
-  -DCMAKE_CXX_COMPILER=cl `
-  -DCMAKE_C_COMPILER=cl `
-  -DCMAKE_BUILD_TYPE=Release `
-  -DCMAKE_TOOLCHAIN_FILE="${PWD}\vcpkg\scripts\buildsystems\vcpkg.cmake" `
-  -DEXTERNALS_DIR="${PWD}\externals" `
-  -DCPP_BGUI_DIR="${PWD}\externals\cpp-bgui" `
-  -S "${PWD}"
-```
-
-If using the Visual Studio generator explicitly (optional), you can add `-G "Visual Studio 17 2022" -A x64` (match your installed VS version).
-
-4. Build (PowerShell or cmd):
-```powershell
-cmake --build .\build --config Release
-```
+*Note: Ensure your backend server is active on `http://localhost:5000` so the frontend can successfully retrieve and update your tasks.*
 
 ---
 
-## Tips and troubleshooting
+# 🛠️ Troubleshooting
 
-- If CMake can't find libraries on Linux, verify the dev packages are installed (e.g., `libsqlite3-dev`, `libglfw3-dev`, etc.).
-- On Windows, ensure you run PowerShell from a Developer Command Prompt (so `cl` is available) or use the Visual Studio generator so MSVC tools are on PATH.
-- If vcpkg installs packages for a specific triplet (e.g. `x64-windows`), make sure your CMake generator and build architecture match that triplet (x64 vs x86).
-- If you change compilers manually, set `-DCMAKE_C_COMPILER` and `-DCMAKE_CXX_COMPILER` as shown in the examples.
+- **CORS Blocked Errors:** Confirm that `cors()` middleware is configured before routes in your backend `index.js`.
+- **Desktop Submodules:** If the desktop build fails, verify your git submodules are completely initialized with `git submodule status --recursive`.
+- **Database Refused:** Double-check your PostgreSQL system service status and `.env` match port `5432`.

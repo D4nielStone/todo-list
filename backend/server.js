@@ -1,19 +1,16 @@
-import express, { json } from 'express';
-const app = express();
-
-import cors from 'cors'; 
-
-require('dotenv').config();
+const app = require('express')()
+const cors = require('cors')
+require('dotenv').config()
 
 const port = process.env.PORT || 3000;
 const pguser = process.env.PG_USER;
+const pghost = process.env.PG_HOST;
 const pgpw = process.env.PG_PW;
 const pgdb = process.env.PG_DB;
 
 app.use(cors());
-app.use(json());
 
-const { Client } = require('pg')
+const Client = require('pg').Client
 
 const client = new Client({
     host: pghost,
@@ -23,6 +20,11 @@ const client = new Client({
     port: port
 })
 
+// connect the client
+client.connect()
+    .then(() => console.log('Connecting to PostgreSQL successfully!'))
+    .catch(err => console.error('Connection error:', err.stack));
+/*
 // GET - List all tasks
 app.get('/tasks', async (req, res) => {
     try {
@@ -123,4 +125,4 @@ app.listen(port, () => {
     console.log('====================================');
     console.log(` Server running on port ${port}`);
     console.log('====================================');
-});
+});*/

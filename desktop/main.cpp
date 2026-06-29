@@ -13,6 +13,10 @@ int main() {
     header.add<bgui::text>("Todo List App", 0.4f);
     header.style.layout.require_mode(bgui::mode::match_parent, bgui::mode::wrap_content);
     header.style.visual.background.normal = {0.06f, 0.06f, 0.06f, 1.f};
+    header.add<bgui::linear>(bgui::orientation::horizontal).style.layout.require_mode(bgui::mode::stretch, bgui::mode::wrap_content);
+    header.add<bgui::button>(" X ", 0.4f, [&](){
+        bgui::shutdown_glfw();
+    }).add_class("window-button");
 
     tlb::get_instance().setup_interface();
 

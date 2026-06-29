@@ -76,6 +76,6 @@ public:
         });
         btn.style.layout.require_mode(bgui::mode::wrap_content, bgui::mode::wrap_content);
         btn.style.visual.border.normal = 0.0f;
-        btn.style.visual.background.normal = 0.1f;
+        btn.style.visual.background.normal = {0.1f, 0.1f, 0.1f, 1.f};
     }
 };
