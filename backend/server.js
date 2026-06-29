@@ -1,47 +1,27 @@
-const express = require('express');
-const cors = require('cors'); 
+import express, { json } from 'express';
 const app = express();
-require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = process.env.URI;
-const PORT = process.env.PORT || 3000;
+import cors from 'cors'; 
+
+require('dotenv').config();
+
+const port = process.env.PORT || 3000;
+const pguser = process.env.PG_USER;
+const pgpw = process.env.PG_PW;
+const pgdb = process.env.PG_DB;
 
 app.use(cors());
-app.use(express.json());
+app.use(json());
 
-// MongoDB Client Configuration
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+const { Client } = require('pg')
 
-// Global variable to store the database collection reference
-let tasksCollection;
-
-// Function to connect to the database before starting the routes
-async function connectDB() {
-    try {
-        await client.connect();
-        // Connect to "todo-list" database and "tasks" collection
-        const database = client.db("todo-list");
-        tasksCollection = database.collection("tasks");
-        console.log(`[${new Date().toISOString()}] -> Successfully connected to MongoDB! 🎉`);
-    } catch (error) {
-        console.error(`[${new Date().toISOString()}] CRITICAL: Error connecting to MongoDB:`, error);
-        process.exit(1); // Shutdown server if database connection fails
-    }
-}
-
-// Initialize database connection
-connectDB();
-
-// ====================================================================
-// API ROUTES (Async/Await handled for external database operations)
-// ====================================================================
+const client = new Client({
+    host: pghost,
+    user: pguser,
+    password: pgpw,
+    database: pgdb,
+    port: port
+})
 
 // GET - List all tasks
 app.get('/tasks', async (req, res) => {
@@ -139,8 +119,8 @@ app.delete('/tasks/:id', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+app.listen(port, () => {
     console.log('====================================');
-    console.log(` Server running on port ${PORT}`);
+    console.log(` Server running on port ${port}`);
     console.log('====================================');
 });
