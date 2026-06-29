@@ -10,8 +10,8 @@ A multi-platform ToDo List application featuring a C++ desktop client and a full
 # 📁 Repository Structure
 
 ```text
-todo-list/
-├── desktop/          # C++ GUI Client (CMake, Bubble GUI, SQLite)
+todo-list/            # CMake config to the desktop
+├── desktop/          # C++UI
 └── web/
     ├── backend/      # Node.js API Server (Express, PostgreSQL, CORS)
     └── frontend/     # Web User Interface
