@@ -1,20 +1,17 @@
-// Create task in the database
 async function createTask() {
-    // Get input text
     const inputElement = document.getElementById('ipt');
     let txt = inputElement.value;
 
-    // Verify if txt input is empty
     if (txt.trim() !== "") {
         try {
-            // FIXED: Changed URL from "/" to "/tasks" to match backend route
             const response = await fetch("http://localhost:3000/tasks", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    title: txt
+                    name: txt,
+                    completed: false
                 })
             });
 
@@ -127,7 +124,7 @@ async function loadTasks() {
             });
 
             const txtContent = document.createElement("span");
-            txtContent.textContent = task.title;
+            txtContent.textContent = task.name;
             txtContent.style.color = "white";
             txtContent.style.fontFamily = "sans-serif";
 
