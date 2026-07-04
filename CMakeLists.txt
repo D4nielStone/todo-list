@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
 project(TodoList)
 
+if(WIN32)
 if(DEFINED ENV{VCPKG_ROOT})
     set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 elseif(EXISTS "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
@@ -12,6 +13,7 @@ endif()
 # Set the target triplet for MSVC (Visual Studio)
 if(WIN32 AND NOT DEFINED VCPKG_TARGET_TRIPLET)
     set(VCPKG_TARGET_TRIPLET x64-windows CACHE STRING "Target triplet for vcpkg")
+endif()
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
